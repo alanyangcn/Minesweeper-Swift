@@ -6,7 +6,7 @@
 //
 
 import UIKit
-
+import SnapKit
 class PlayViewController: UIViewController {
     let playView = PlayView()
     var level = Level.middle
@@ -17,7 +17,6 @@ class PlayViewController: UIViewController {
 
         view.addSubview(playView)
         let margin: CGFloat = 8
-        playView.frame = CGRect(x: margin, y: margin, width: UIScreen.main.bounds.width - margin * 2, height: UIScreen.main.bounds.height - margin * 2)
         playView.backgroundColor = .lightGray
 
         playView.start(level: level)
@@ -25,6 +24,11 @@ class PlayViewController: UIViewController {
         playView.gameOverCallback = { [weak self] in
             self?.gameOverAlert()
         }
+        
+        playView.snp.makeConstraints { (make) in
+            make.edges.equalTo(view.safeAreaLayoutGuide)
+        }
+        
     }
 
     private func gameOverAlert() {

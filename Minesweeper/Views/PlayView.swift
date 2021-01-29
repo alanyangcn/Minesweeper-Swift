@@ -19,9 +19,33 @@ class PlayView: UIView {
 
     private func setupUI() {
     }
+    
+    lazy var scrollView: UIScrollView = {
+        let scrollView = UIScrollView()
+        return scrollView
+    }()
+    
 
     override func layoutSubviews() {
         super.layoutSubviews()
+        
+        let margin: CGFloat = 2.0
+        let rowWidth = (frame.size.width - margin * CGFloat(level.column - 1)) / CGFloat(level.column)
+        let rowHeight = (frame.size.height - margin * CGFloat(level.row - 1)) / CGFloat(level.row)
+
+        let sideLength = max(min(rowWidth, rowHeight), 60)
+        let left = (frame.size.width - sideLength * CGFloat(level.column) - margin * CGFloat(level.row - 1)) * 0.5
+        let top = (frame.size.height - sideLength * CGFloat(level.row) - margin * CGFloat(level.row - 1)) * 0.5
+        
+        for i in 0 ..< level.row {
+            for j in 0 ..< level.column {
+                let button = cubes[level.row * i + j]
+                button.frame = CGRect(x: left + CGFloat(j) * (sideLength + margin), y: top + CGFloat(i) * (sideLength + margin), width: sideLength, height: sideLength)
+               
+            }
+        }
+        
+        
     }
 
     var gameOverCallback: (() -> Void)?
@@ -42,13 +66,7 @@ class PlayView: UIView {
         isPlaying = false
         self.level = level
 
-        let margin: CGFloat = 2.0
-        let rowWidth = (frame.size.width - margin * CGFloat(level.column - 1)) / CGFloat(level.column)
-        let rowHeight = (frame.size.height - margin * CGFloat(level.row - 1)) / CGFloat(level.row)
-
-        let sideLength = min(rowWidth, rowHeight)
-        let left = (frame.size.width - sideLength * CGFloat(level.column) - margin * CGFloat(level.row - 1)) * 0.5
-        let top = (frame.size.height - sideLength * CGFloat(level.row) - margin * CGFloat(level.row - 1)) * 0.5
+        
         var tag = 0
         for i in 0 ..< level.row {
             for j in 0 ..< level.column {
@@ -58,7 +76,7 @@ class PlayView: UIView {
                 button.layer.borderWidth = 2
                 addSubview(button)
                 button.contentValue = "☁️"
-                button.frame = CGRect(x: left + CGFloat(j) * (sideLength + margin), y: top + CGFloat(i) * (sideLength + margin), width: sideLength, height: sideLength)
+                
                 button.tag = tag
                 button.rowIndex = i
                 button.colunmIndex = j

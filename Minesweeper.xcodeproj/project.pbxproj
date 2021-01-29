@@ -129,6 +129,7 @@
 				A16DE26B25C3A43600330BE2 /* Sources */,
 				A16DE26C25C3A43600330BE2 /* Frameworks */,
 				A16DE26D25C3A43600330BE2 /* Resources */,
+				70359BC9BCACC597BAFD2450 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -184,6 +185,23 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		70359BC9BCACC597BAFD2450 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Minesweeper/Pods-Minesweeper-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Minesweeper/Pods-Minesweeper-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Minesweeper/Pods-Minesweeper-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		A854EBDDAEDB378AF405CB49 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
