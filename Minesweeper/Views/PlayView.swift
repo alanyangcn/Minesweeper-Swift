@@ -18,34 +18,48 @@ class PlayView: UIView {
     }
 
     private func setupUI() {
+        addSubview(scrollView)
+        scrollView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
     }
-    
+
     lazy var scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         return scrollView
     }()
-    
 
     override func layoutSubviews() {
         super.layoutSubviews()
-        
-        let margin: CGFloat = 2.0
+
+        let margin: CGFloat = 0
         let rowWidth = (frame.size.width - margin * CGFloat(level.column - 1)) / CGFloat(level.column)
         let rowHeight = (frame.size.height - margin * CGFloat(level.row - 1)) / CGFloat(level.row)
 
-        let sideLength = max(min(rowWidth, rowHeight), 60)
-        let left = (frame.size.width - sideLength * CGFloat(level.column) - margin * CGFloat(level.row - 1)) * 0.5
-        let top = (frame.size.height - sideLength * CGFloat(level.row) - margin * CGFloat(level.row - 1)) * 0.5
+        let sideLength = max(min(rowWidth, rowHeight), 40)
+        var left = (frame.size.width - sideLength * CGFloat(level.column) - margin * CGFloat(level.row - 1)) * 0.5
+        var top = (frame.size.height - sideLength * CGFloat(level.row) - margin * CGFloat(level.row - 1)) * 0.5
+
+        left = max(left, 0)
+        top = max(top, 0)
         
         for i in 0 ..< level.row {
             for j in 0 ..< level.column {
-                let button = cubes[level.row * i + j]
-                button.frame = CGRect(x: left + CGFloat(j) * (sideLength + margin), y: top + CGFloat(i) * (sideLength + margin), width: sideLength, height: sideLength)
-               
+                let button = cubes[level.column * i + j]
+                button.snp.makeConstraints { make in
+                    make.left.equalTo(left + CGFloat(j) * (sideLength + margin))
+                    make.width.height.equalTo(sideLength)
+                    make.top.equalTo(top + CGFloat(i) * (sideLength + margin))
+                }
+
+                if button == cubes.last {
+                    button.snp.makeConstraints { make in
+                        make.bottom.equalToSuperview()
+                        make.right.equalToSuperview()
+                    }
+                }
             }
         }
-        
-        
     }
 
     var gameOverCallback: (() -> Void)?
@@ -59,24 +73,21 @@ class PlayView: UIView {
 
     func start(level: Level) {
         cubes = []
-        subviews.forEach({ $0.removeFromSuperview() })
+        scrollView.subviews.forEach({ $0.removeFromSuperview() })
         startIndex = 0
         nums = []
 
         isPlaying = false
         self.level = level
 
-        
         var tag = 0
         for i in 0 ..< level.row {
             for j in 0 ..< level.column {
                 let button = Cube()
 
-                button.layer.borderColor = UIColor.darkGray.cgColor
-                button.layer.borderWidth = 2
-                addSubview(button)
-                button.contentValue = "☁️"
+                scrollView.addSubview(button)
                 
+
                 button.tag = tag
                 button.rowIndex = i
                 button.colunmIndex = j
@@ -86,6 +97,9 @@ class PlayView: UIView {
                 button.addGestureRecognizer(longGes)
                 tag += 1
                 cubes.append(button)
+                
+                button.setBackgroundImage(UIImage(named: "icon_empty"), for: .disabled)
+                
             }
         }
     }
@@ -104,7 +118,7 @@ class PlayView: UIView {
         }
         if cube.isBomb {
             print("Game Over")
-            cubes.forEach({ if $0.isBomb { $0.contentValue = "💣" }})
+            cubes.forEach({ if $0.isBomb { $0.cubeState = .bomb }})
 
             gameOverCallback?()
             return
@@ -140,10 +154,10 @@ class PlayView: UIView {
         let cube = cubes[index]
 
         if num > 0 {
-            cube.contentValue = "\(num)"
+            cube.cubeState = .emptyWithNumber(number: num)
         } else {
-            if cube.contentValue != "" {
-                cube.contentValue = ""
+            if cube.cubeState == .normal {
+                cube.cubeState = .empty
                 for i in max(0, colunm - 1) ..< min(colunm + 2, level.column) {
                     for j in max(0, row - 1) ..< min(row + 2, level.row) {
                         debugPrint("\(i)-\(j)")
@@ -199,27 +213,49 @@ class PlayView: UIView {
         return false
     }
 }
-
+enum CubeState: Hashable {
+    case normal
+    case empty
+    case emptyWithNumber(number: Int)
+    case flag
+    case bomb
+}
 class Cube: UIButton {
     var rowIndex = 0
 
     var colunmIndex = 0
-
-    var contentValue: String = "" {
+    
+    var cubeState: CubeState = .normal {
         didSet {
-            setTitle(contentValue, for: .normal)
+            
+            var iconName = "icon_normal"
+            switch cubeState {
+            case .normal:
+                break
+            case .empty:
+                iconName = "icon_empty"
+                
+            case let .emptyWithNumber(number):
+                
+                iconName = "icon_num_\(number)"
+                break
+            case .flag:
+                break
+            case .bomb:
+                break
+            }
+            
+            setBackgroundImage(UIImage(named: iconName), for: .normal)
         }
     }
+    
 
     var isBomb = false
-
-    var isFlag = false {
-        didSet {
-            if isFlag {
-                setTitle("🇨🇳", for: .normal)
-            }
-        }
-    }
+    
+    
+    var isOpen = false
+    
+    var isFlag = false
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -231,6 +267,7 @@ class Cube: UIButton {
     }
 
     private func setupUI() {
+        setBackgroundImage(UIImage(named: "icon_normal"), for: .normal)
     }
 
     override func layoutSubviews() {

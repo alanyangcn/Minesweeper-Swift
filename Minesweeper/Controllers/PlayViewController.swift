@@ -26,7 +26,7 @@ class PlayViewController: UIViewController {
         }
         
         playView.snp.makeConstraints { (make) in
-            make.edges.equalTo(view.safeAreaLayoutGuide)
+            make.edges.equalTo(view.safeAreaLayoutGuide).inset(margin)
         }
         
     }
