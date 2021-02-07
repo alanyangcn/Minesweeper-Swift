@@ -42,7 +42,7 @@ class PlayView: UIView {
 
         left = max(left, 0)
         top = max(top, 0)
-        
+
         for i in 0 ..< level.row {
             for j in 0 ..< level.column {
                 let button = cubes[level.column * i + j]
@@ -86,7 +86,6 @@ class PlayView: UIView {
                 let button = Cube()
 
                 scrollView.addSubview(button)
-                
 
                 button.tag = tag
                 button.rowIndex = i
@@ -97,27 +96,26 @@ class PlayView: UIView {
                 button.addGestureRecognizer(longGes)
                 tag += 1
                 cubes.append(button)
-                
+
                 button.setBackgroundImage(UIImage(named: "icon_empty"), for: .disabled)
-                
             }
         }
     }
 
     @objc private func longTap(ges: UILongPressGestureRecognizer) {
-        print("--------\(ges.state.rawValue)-------")
+        
         if ges.state == .began, let cube = ges.view as? Cube {
-            cube.isFlag = true
+            cube.cubeState = .flag
         }
     }
 
     /// 点击事件
     @objc private func tap(cube: Cube) {
-        if cube.isFlag {
+        if cube.cubeState == .flag {
             return
         }
         if cube.isBomb {
-            print("Game Over")
+            
             cubes.forEach({ if $0.isBomb { $0.cubeState = .bomb }})
 
             gameOverCallback?()
@@ -160,7 +158,7 @@ class PlayView: UIView {
                 cube.cubeState = .empty
                 for i in max(0, colunm - 1) ..< min(colunm + 2, level.column) {
                     for j in max(0, row - 1) ..< min(row + 2, level.row) {
-                        debugPrint("\(i)-\(j)")
+                        
 
                         setNumbers(colunm: i, row: j)
                     }
@@ -185,7 +183,7 @@ class PlayView: UIView {
     }
 
     private func getNums() {
-        print(nums.count)
+        
         if nums.count == level.bombCount {
             return
         }
@@ -213,6 +211,7 @@ class PlayView: UIView {
         return false
     }
 }
+
 enum CubeState: Hashable {
     case normal
     case empty
@@ -220,42 +219,37 @@ enum CubeState: Hashable {
     case flag
     case bomb
 }
+
 class Cube: UIButton {
     var rowIndex = 0
 
     var colunmIndex = 0
-    
+
     var cubeState: CubeState = .normal {
         didSet {
-            
             var iconName = "icon_normal"
             switch cubeState {
             case .normal:
                 break
             case .empty:
                 iconName = "icon_empty"
-                
+
             case let .emptyWithNumber(number):
-                
+
                 iconName = "icon_num_\(number)"
-                break
+
             case .flag:
-                break
+                iconName = "icon_flag"
             case .bomb:
-                break
+
+                iconName = "icon_bomb"
             }
-            
+
             setBackgroundImage(UIImage(named: iconName), for: .normal)
         }
     }
-    
 
     var isBomb = false
-    
-    
-    var isOpen = false
-    
-    var isFlag = false
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")

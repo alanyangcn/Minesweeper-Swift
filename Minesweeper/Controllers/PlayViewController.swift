@@ -15,9 +15,16 @@ class PlayViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
 
-        view.addSubview(playView)
+        
         let margin: CGFloat = 8
-        playView.backgroundColor = .lightGray
+        let bgImageView = UIImageView(image: UIImage(named: "bg"))
+
+        view.addSubview(bgImageView)
+        view.addSubview(playView)
+        bgImageView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+
 
         playView.start(level: level)
 
